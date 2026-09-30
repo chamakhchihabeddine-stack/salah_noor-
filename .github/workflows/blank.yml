@@ -1,0 +1,31 @@
+name: Build Noor Salah APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download project
+        uses: actions/checkout@v4
+
+      - name: Extract project
+        run: |
+          unzip -o salah.zip -d project
+          find project -name settings.gradle -o -name settings.gradle.kts
+
+      - name: Build APK
+        run: |
+          PROJECT_DIR=$(dirname "$(find project -name settings.gradle -o -name settings.gradle.kts | head -n 1)")
+          cd "$PROJECT_DIR"
+          gradle assembleDebug --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: NoorSalah-APK
+          path: project/**/app/build/outputs/apk/debug/app-debug.apk
